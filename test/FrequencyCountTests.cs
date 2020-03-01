@@ -81,7 +81,6 @@ public class FrequencyCountTests {
     Assert.Equal(0f, fc.EntropyXGivenY() - fc.EntropyXY() + fc.EntropyY(), 1);
     Assert.Equal(0f, fc.EntropyYGivenX() - fc.EntropyXY() + fc.EntropyX(), 1);
     Assert.Equal(0.07f, fc.MutualInformationXY(), 2);
-    // Assert.Equal(1f, fc.Entropy(), 2);
   }
 
   [Fact]
@@ -95,10 +94,10 @@ public class FrequencyCountTests {
     fc.Add("b", 0);
     fc.Add("b", 0);
     fc.Add("b", 0);
-    Assert.Equal(4/8f, fc.ProbabilityX("a"));
-    Assert.Equal(4/8f, fc.ProbabilityX("b"));
-    Assert.Equal(4/8f, fc.ProbabilityY(0));
-    Assert.Equal(4/8f, fc.ProbabilityY(1));
+    Assert.Equal(1/2f, fc.ProbabilityX("a"));
+    Assert.Equal(1/2f, fc.ProbabilityX("b"));
+    Assert.Equal(1/2f, fc.ProbabilityY(0));
+    Assert.Equal(1/2f, fc.ProbabilityY(1));
     Assert.Equal(0f, fc.ProbabilityXY("a", 0));
     Assert.Equal(0f, fc.ProbabilityYGivenX(0, "a"));
     Assert.Equal(1f, fc.ProbabilityYGivenX(1, "a"));
@@ -112,7 +111,38 @@ public class FrequencyCountTests {
     Assert.Equal(0f, fc.EntropyXGivenY() - fc.EntropyXY() + fc.EntropyY(), 1);
     Assert.Equal(0f, fc.EntropyYGivenX() - fc.EntropyXY() + fc.EntropyX(), 1);
     Assert.Equal(1f, fc.MutualInformationXY(), 2);
-    // Assert.Equal(1f, fc.Entropy(), 2);
+  }
+
+  [Fact]
+  public void TestPairedAlphabet3() {
+    var fc = new FrequencyPairAlphabet(new[] { "a", "b" });
+    fc.Add("a", 1);
+    fc.Add("a", 1);
+    fc.Add("a", 0);
+    fc.Add("a", 0);
+    fc.Add("b", 1);
+    fc.Add("b", 1);
+    fc.Add("b", 0);
+    fc.Add("b", 0);
+    Assert.Equal(1/2f, fc.ProbabilityX("a"));
+    Assert.Equal(1/2f, fc.ProbabilityX("b"));
+    Assert.Equal(1/2f, fc.ProbabilityY(0));
+    Assert.Equal(1/2f, fc.ProbabilityY(1));
+    Assert.Equal(2/8f, fc.ProbabilityXY("a", 0));
+    Assert.Equal(1/2f, fc.ProbabilityYGivenX(0, "a"));
+    Assert.Equal(1/2f, fc.ProbabilityYGivenX(1, "a"));
+    Assert.Equal(1/2f, fc.ProbabilityYGivenX(0, "b"), 2);
+    Assert.Equal(1/2f, fc.ProbabilityYGivenX(1, "b"), 2);
+    Assert.Equal(1f, fc.EntropyYGivenX(), 1);
+    Assert.Equal(1f, fc.EntropyXGivenY(), 1);
+    Assert.Equal(2f, fc.EntropyXY(), 1);
+    Assert.Equal(1f, fc.EntropyX(), 2);
+    Assert.Equal(1f, fc.EntropyY(), 1);
+    // H(X|Y) = H(X,Y) - H(Y)
+    // This should always be true.
+    Assert.Equal(0f, fc.EntropyXGivenY() - fc.EntropyXY() + fc.EntropyY(), 1);
+    Assert.Equal(0f, fc.EntropyYGivenX() - fc.EntropyXY() + fc.EntropyX(), 1);
+    Assert.Equal(0f, fc.MutualInformationXY(), 2);
   }
 }
 }
