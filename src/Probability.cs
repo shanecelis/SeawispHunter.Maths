@@ -2,14 +2,21 @@ using System;
 
 public static class Probability {
 
-  public static bool ValidDistribution(float[] p) {
+  public static bool IsValidDistribution(float[] p) {
     float sum = 0f;
     for (int i = 0; i < p.Length; i++)
       sum += p[i];
     return sum == 1f;
   }
+  public static void NormalizeDistribution(float[] p) {
+    float sum = 0f;
+    for (int i = 0; i < p.Length; i++)
+      sum += p[i];
+    for (int i = 0; i < p.Length; i++)
+      p[i] /= sum;
+  }
 
-  public static bool ValidDistribution(float[,] p) {
+  public static bool IsValidDistribution(float[,] p) {
     float sum = 0f;
     for (int i = 0; i < p.GetLength(0); i++)
       for (int j = 0; j < p.GetLength(0); j++)
@@ -17,11 +24,25 @@ public static class Probability {
     return sum == 1f;
   }
 
+  public static void NormalizeDistribution(float[,] p) {
+    float sum = 0f;
+    for (int i = 0; i < p.GetLength(0); i++)
+      for (int j = 0; j < p.GetLength(0); j++)
+        sum += p[i, j];
+
+    for (int i = 0; i < p.GetLength(0); i++)
+      for (int j = 0; j < p.GetLength(0); j++)
+        p[i, j] /= sum;
+  }
+
   public static float Entropy(float[] p, int? basis = null) {
     float accum = 0f;
     for (int i = 0; i < p.Length; i++)
       accum += p[i] * (float) Math.Log(p[i]);
-    return -accum / (float) Math.Log(basis ?? p.Length);
+    if (basis.HasValue)
+      return -accum / (float) Math.Log(basis.Value);
+    else
+      return -accum;
   }
 
   public static float ConditionalEntropyYX(float[,] p_xy, float[] p_x, int? basis = null) {
@@ -32,9 +53,12 @@ public static class Probability {
       for (int j = 0; j < p_xy.GetLength(1); j++)
         if (p_xy[i, j] != 0f && p_x[i] != 0f)
           accum += p_xy[i, j] * (float) Math.Log(p_xy[i, j] / p_x[i]);
-    return - accum / (float) Math.Log(basis ?? p_xy.Length);
+    if (basis.HasValue)
+      return -accum / (float) Math.Log(basis.Value);
+    else
+      return -accum;
   }
-  
+
   public static float ConditionalEntropyXY(float[,] p_xy, float[] p_y, int? basis = null) {
     float accum = 0f;
     if (p_xy.GetLength(1) != p_y.Length)
@@ -43,7 +67,10 @@ public static class Probability {
       for (int j = 0; j < p_xy.GetLength(1); j++)
         if (p_xy[i, j] != 0f && p_y[j] != 0f)
           accum += p_xy[i, j] * (float) Math.Log(p_xy[i, j] / p_y[j]);
-    return - accum / (float) Math.Log(basis ?? p_xy.Length);
+    if (basis.HasValue)
+      return - accum / (float) Math.Log(basis.Value);
+    else
+      return - accum;
   }
 
   public static float JointEntropy(float[,] p_xy, int? basis = null) {
@@ -52,7 +79,10 @@ public static class Probability {
       for (int j = 0; j < p_xy.GetLength(1); j++)
         if (p_xy[i, j] != 0f)
           accum += p_xy[i, j] * (float) Math.Log(p_xy[i, j]);
-    return -accum / (float) Math.Log(basis ?? p_xy.Length);
+    if (basis.HasValue)
+      return -accum / (float) Math.Log(basis.Value);
+    else
+      return -accum;
   }
 
   public static float[] MarginalDistributionX(float[,] p_xy) {
