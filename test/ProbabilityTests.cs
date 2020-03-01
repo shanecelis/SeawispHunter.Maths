@@ -24,9 +24,9 @@ public class ProbabilityTests {
 
   [Fact]
   public void TestMarginalDistributionX() {
-    Assert.True(Probability.ValidDistribution(p_x));
-    Assert.True(Probability.ValidDistribution(p_y));
-    Assert.True(Probability.ValidDistribution(p_xy));
+    Assert.True(Probability.IsValidDistribution(p_x));
+    Assert.True(Probability.IsValidDistribution(p_y));
+    Assert.True(Probability.IsValidDistribution(p_xy));
     Assert.Equal(1/8f, p_xy[0, 0]);
     Assert.Equal(1/16f, p_xy[1, 0]);
     Assert.Equal(1/16f, p_xy[2, 0]);
@@ -51,17 +51,21 @@ public class ProbabilityTests {
     };
     p_x = Probability.MarginalDistributionX(p_xy);
     p_y = Probability.MarginalDistributionY(p_xy);
-    Assert.True(Probability.ValidDistribution(p_x));
-    Assert.True(Probability.ValidDistribution(p_y));
-    Assert.True(Probability.ValidDistribution(p_xy));
+    Assert.True(Probability.IsValidDistribution(p_x));
+    Assert.True(Probability.IsValidDistribution(p_y));
+    Assert.True(Probability.IsValidDistribution(p_xy));
     // Assert.Equal(2f, Probability.Entropy(p_x, 2));
     // Assert.Equal(7/4f, Probability.Entropy(p_y, 2));
     Assert.Equal(3/2f, Probability.JointEntropy(p_xy, 2));
-    Assert.Equal(3/4f, Probability.JointEntropy(p_xy));
+    Assert.Equal(3/4f, Probability.JointEntropy(p_xy, p_xy.Length));
+    Assert.Equal(1.04f, Probability.JointEntropy(p_xy), 2);
     Assert.Equal(1/2f, Probability.ConditionalEntropyYX(p_xy, p_x, 2));
-    Assert.Equal(1/4f, Probability.ConditionalEntropyYX(p_xy, p_x));
+    Assert.NotEqual(1/4f, Probability.ConditionalEntropyYX(p_xy, p_x));
+    Assert.Equal(1/4f, Probability.ConditionalEntropyYX(p_xy, p_x, p_xy.Length), 2);
+    Assert.Equal(1/2f, Probability.ConditionalEntropyYX(p_xy, p_x, p_x.Length), 2);
+    Assert.Equal(0.35f, Probability.ConditionalEntropyYX(p_xy, p_x), 2);
     Assert.Equal(0.29f, Probability.ConditionalEntropyYX(p_xy, p_y, 2), 2);
-    Assert.Equal(0.15f, Probability.ConditionalEntropyYX(p_xy, p_y), 2);
+    Assert.Equal(0.2f, Probability.ConditionalEntropyYX(p_xy, p_y), 2);
     // Assert.Equal(3/8f, Probability.MutualInformation(p_x, p_y, p_xy, 2));
   }
 
@@ -77,11 +81,16 @@ public class ProbabilityTests {
     // Assert.Equal(2f, Probability.Entropy(p_x, 2));
     // Assert.Equal(7/4f, Probability.Entropy(p_y, 2));
     Assert.Equal(3/2f, Probability.JointEntropy(p_xy, 2));
-    Assert.Equal(0.47f, Probability.JointEntropy(p_xy), 2);
+    Assert.Equal(0.47f, Probability.JointEntropy(p_xy, p_xy.Length), 2);
+    Assert.Equal(1.04f, Probability.JointEntropy(p_xy), 2);
     Assert.Equal(1/2f, Probability.ConditionalEntropyYX(p_xy, p_x, 2));
-    Assert.Equal(0.16f, Probability.ConditionalEntropyYX(p_xy, p_x), 2);
+    Assert.Equal(0.16f, Probability.ConditionalEntropyYX(p_xy, p_x, p_xy.Length), 2);
+    Assert.Equal(0.32f, Probability.ConditionalEntropyYX(p_xy, p_x, p_x.Length), 2);
+    Assert.Equal(0.35f, Probability.ConditionalEntropyYX(p_xy, p_x), 2);
     Assert.Equal(0.69f, Probability.ConditionalEntropyXY(p_xy, p_y, 2), 2);
-    Assert.Equal(0.22f, Probability.ConditionalEntropyXY(p_xy, p_y), 2);
+    Assert.Equal(0.22f, Probability.ConditionalEntropyXY(p_xy, p_y, p_xy.Length), 2);
+    Assert.Equal(0.43f, Probability.ConditionalEntropyXY(p_xy, p_y, p_y.Length), 2);
+    Assert.Equal(0.48f, Probability.ConditionalEntropyXY(p_xy, p_y), 2);
     // Assert.Equal(3/8f, Probability.MutualInformation(p_x, p_y, p_xy, 2));
   }
 
@@ -94,9 +103,15 @@ public class ProbabilityTests {
     };
     p_x = Probability.MarginalDistributionX(p_xy);
     p_y = Probability.MarginalDistributionY(p_xy);
-    Assert.False(Probability.ValidDistribution(p_x));
-    Assert.False(Probability.ValidDistribution(p_y));
-    Assert.False(Probability.ValidDistribution(p_xy));
+    Assert.False(Probability.IsValidDistribution(p_x));
+    Assert.False(Probability.IsValidDistribution(p_y));
+    Assert.False(Probability.IsValidDistribution(p_xy));
+    Probability.NormalizeDistribution(p_x);
+    Probability.NormalizeDistribution(p_y);
+    Probability.NormalizeDistribution(p_xy);
+    Assert.True(Probability.IsValidDistribution(p_x));
+    Assert.True(Probability.IsValidDistribution(p_y));
+    Assert.True(Probability.IsValidDistribution(p_xy));
   }
 
   [Fact]
@@ -107,24 +122,29 @@ public class ProbabilityTests {
     };
     p_x = Probability.MarginalDistributionX(p_xy);
     p_y = Probability.MarginalDistributionY(p_xy);
-    Assert.True(Probability.ValidDistribution(p_x));
-    Assert.True(Probability.ValidDistribution(p_y));
-    Assert.True(Probability.ValidDistribution(p_xy));
+    Assert.True(Probability.IsValidDistribution(p_x));
+    Assert.True(Probability.IsValidDistribution(p_y));
+    Assert.True(Probability.IsValidDistribution(p_xy));
     Assert.Equal(1f, Probability.Entropy(p_x, 2), 2);
     Assert.Equal(1f, Probability.Entropy(p_y, 2), 2);
-    Assert.Equal(1f, Probability.Entropy(p_x), 2);
-    Assert.Equal(1f, Probability.Entropy(p_y), 2);
+    Assert.Equal(1f, Probability.Entropy(p_x, p_x.Length), 2);
+    Assert.Equal(1f, Probability.Entropy(p_y, p_y.Length), 2);
+    Assert.Equal(0.69f, Probability.Entropy(p_x), 2);
+    Assert.Equal(0.69f, Probability.Entropy(p_y), 2);
     Assert.Equal(2f, Probability.JointEntropy(p_xy, 2), 2);
-    Assert.Equal(1f, Probability.JointEntropy(p_xy), 2);
+    Assert.Equal(1f, Probability.JointEntropy(p_xy, p_xy.Length), 2);
+    Assert.Equal(1.39f, Probability.JointEntropy(p_xy), 2);
     Assert.Equal(1f, Probability.ConditionalEntropyYX(p_xy, p_x, 2), 2);
-    Assert.Equal(1/2f, Probability.ConditionalEntropyYX(p_xy, p_x), 2);
+    Assert.Equal(1/2f, Probability.ConditionalEntropyYX(p_xy, p_x, p_xy.Length), 2);
+    Assert.Equal(1f, Probability.ConditionalEntropyYX(p_xy, p_x, p_x.Length), 2);
+    Assert.Equal(0.69f, Probability.ConditionalEntropyYX(p_xy, p_x), 2);
     Assert.Equal(1f, Probability.ConditionalEntropyXY(p_xy, p_y, 2), 2);
-    Assert.Equal(1/2f, Probability.ConditionalEntropyXY(p_xy, p_y), 2);
+    Assert.Equal(0.69f, Probability.ConditionalEntropyXY(p_xy, p_y), 2);
 
     Assert.Equal(0f, Probability.MutualInformation(p_x, p_y, p_xy, 2), 2);
     Assert.Equal(0f, Probability.MutualInformation(p_x, p_y, p_xy), 2);
   }
-  
+
   [Fact]
   public void TestThreeIndependentCoinFlips() {
     p_xy = new [,] {
@@ -134,22 +154,29 @@ public class ProbabilityTests {
     };
     p_x = Probability.MarginalDistributionX(p_xy);
     p_y = Probability.MarginalDistributionY(p_xy);
-    Assert.True(Probability.ValidDistribution(p_x));
-    Assert.True(Probability.ValidDistribution(p_y));
-    Assert.True(Probability.ValidDistribution(p_xy));
+    Assert.True(Probability.IsValidDistribution(p_x));
+    Assert.True(Probability.IsValidDistribution(p_y));
+    Assert.True(Probability.IsValidDistribution(p_xy));
     Assert.Equal(1.58f, Probability.Entropy(p_x, 2), 2);
     Assert.Equal(1.58f, Probability.Entropy(p_y, 2), 2);
-    Assert.Equal(1f, Probability.Entropy(p_x), 2);
-    Assert.Equal(1f, Probability.Entropy(p_y), 2);
+    Assert.Equal(1f, Probability.Entropy(p_x, p_x.Length), 2);
+    Assert.Equal(1f, Probability.Entropy(p_y, p_y.Length), 2);
+    Assert.Equal(1.1f, Probability.Entropy(p_x), 2);
+    Assert.Equal(1.1f, Probability.Entropy(p_y), 2);
     Assert.Equal(3.17f, Probability.JointEntropy(p_xy, 2), 2);
-    Assert.Equal(1f, Probability.JointEntropy(p_xy), 2);
+    Assert.Equal(1f, Probability.JointEntropy(p_xy, p_xy.Length), 2);
+    Assert.Equal(2.2f, Probability.JointEntropy(p_xy), 2);
     Assert.Equal(1.58f, Probability.ConditionalEntropyYX(p_xy, p_x, 2), 2);
-    Assert.Equal(1/2f, Probability.ConditionalEntropyYX(p_xy, p_x), 2);
+    Assert.Equal(0.5f, Probability.ConditionalEntropyYX(p_xy, p_x, p_xy.Length), 2);
+    Assert.Equal(1f, Probability.ConditionalEntropyYX(p_xy, p_x, p_x.Length), 2);
+    Assert.Equal(1.1f, Probability.ConditionalEntropyYX(p_xy, p_x), 2);
     Assert.Equal(1.58f, Probability.ConditionalEntropyXY(p_xy, p_y, 2), 2);
-    Assert.Equal(1/2f, Probability.ConditionalEntropyXY(p_xy, p_y), 2);
+    Assert.Equal(1.1f, Probability.ConditionalEntropyXY(p_xy, p_y), 2);
 
     Assert.Equal(0f, Probability.MutualInformation(p_x, p_y, p_xy, 2), 2);
-    Assert.Equal(1f, Probability.MutualInformation(p_x, p_y, p_xy), 2);
+    Assert.Equal(0f, Probability.MutualInformation(p_x, p_y, p_xy), 2);
+    Assert.Equal(0f, Probability.MutualInformation(p_x, p_y, p_xy, p_xy.Length), 2);
+    Assert.Equal(0f, Probability.MutualInformation(p_x, p_y, p_xy, p_x.Length), 2);
   }
 }
 }
