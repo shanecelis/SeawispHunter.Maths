@@ -6,7 +6,7 @@ namespace test {
 public class TallyTests {
   [Fact]
   public void TestOneSample() {
-    var fc = new TallyFloat(10, -1f, 1f);
+    var fc = new TallySingle(10, -1f, 1f);
     fc.Add(0f);
     Assert.Equal(1f, fc.Probability(0f));
     Assert.Equal(0f, fc.Probability(1f));
@@ -24,7 +24,7 @@ public class TallyTests {
 
   [Fact]
   public void TestTwoSamples() {
-    var fc = new TallyFloat(10, -1f, 1f);
+    var fc = new TallySingle(10, -1f, 1f);
     fc.Add(0f);
     fc.Add(0.5f);
     Assert.Equal(0.5f, fc.Probability(0f));
@@ -54,7 +54,7 @@ public class TallyTests {
 
   [Fact]
   public void TestPairedAlphabet() {
-    var fc = new TallyAlphabetPair(new[] { "a", "b" });
+    var fc = new TallyAlphabet<int>(new[] { "a", "b" }, 2, y => y);
     fc.Add("a", 0);
     fc.Add("a", 0);
     fc.Add("a", 1);
@@ -85,7 +85,7 @@ public class TallyTests {
 
   [Fact]
   public void TestPairedAlphabet2() {
-    var fc = new TallyAlphabetPair(new[] { "a", "b" });
+    var fc = new TallyAlphabet<int>(new[] { "a", "b" }, 2, y => y);
     fc.Add("a", 1);
     fc.Add("a", 1);
     fc.Add("a", 1);
@@ -115,7 +115,7 @@ public class TallyTests {
 
   [Fact]
   public void TestPairedAlphabet3() {
-    var fc = new TallyAlphabetPair(new[] { "a", "b" });
+    var fc = new TallyAlphabet<int>(new[] { "a", "b" }, 2, y => y);
     fc.Add("a", 1);
     fc.Add("a", 1);
     fc.Add("a", 0);
@@ -147,7 +147,7 @@ public class TallyTests {
 
   [Fact]
   public void TestArrayTallyAlphabet() {
-    var fc = new ArrayTallyAlphabet(new[] { "a", "b", "c" });
+    var fc = new ArrayTallyAlphabet<int>(new[] { "a", "b", "c" }, 3, y => y);
     fc.Add(new [] { "a" }, new [] { 2 });
     fc.Add(new [] { "a" }, new [] { 1 });
     fc.Add(new [] { "a" }, new [] { 0 });
@@ -186,7 +186,7 @@ public class TallyTests {
 
   [Fact]
   public void TestArrayTallyAlphabet2() {
-    var fc = new ArrayTallyAlphabet(new[] { "a", "b", "c" });
+    var fc = new ArrayTallyAlphabet<int>(new[] { "a", "b", "c" }, 3, y => y);
     fc.Add(new [] { "a", "b" }, new [] { 2, 1 });
     fc.Add(new [] { "a", "b" }, new [] { 1, 1 });
     fc.Add(new [] { "a", "b" }, new [] { 0, 1 });
@@ -242,7 +242,7 @@ public class TallyTests {
 
   [Fact]
   public void TestCompareWithProbability() {
-    var fc = new TallyAlphabetPair(new[] { "a", "b", "c" });
+    var fc = new TallyAlphabet<int>(new[] { "a", "b", "c" }, 3, y => y);
     fc.Add("a", 2);
     fc.Add("a", 1);
     fc.Add("a", 0);
