@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace SeawispHunter.InformationTheory {
 
-  public class FrequencyCount<T> {
+  public class Tally<T> {
 
     public readonly int binCount;
     int[] counts;
     int samples = 0;
     public readonly Func<T, int> binFunc;
 
-    public FrequencyCount(int binCount, Func<T, int> binFunc) {
+    public Tally(int binCount, Func<T, int> binFunc) {
       this.binCount = binCount;
       this.binFunc = binFunc;
       this.counts = new int[binCount];
@@ -59,23 +59,23 @@ namespace SeawispHunter.InformationTheory {
     }
   }
 
-  public class FrequencyCountSingle : FrequencyCount<float> {
+  public class TallyFloat : Tally<float> {
 
-    public FrequencyCountSingle(int binCount, float min, float max)
+    public TallyFloat(int binCount, float min, float max)
       : base(binCount, x => (int) ((Clamp(x, min, max) - min) / (max - min) * (binCount - 1))) { }
 
     public static float Clamp(float x, float min, float max) => Math.Min(Math.Max(x, min), max);
 
   }
 
-  public class FrequencyCountAlphabet : FrequencyCount<string> {
+  public class TallyAlphabet : Tally<string> {
 
-    public FrequencyCountAlphabet(string[] alphabet)
+    public TallyAlphabet(string[] alphabet)
       : base(alphabet.Length, x => Array.IndexOf(alphabet, x)) { }
   }
 
 
-  public class FrequencyPair<X, Y> {
+  public class Tally<X, Y> {
 
     public readonly int binCount;
     int[,] counts;
@@ -86,7 +86,7 @@ namespace SeawispHunter.InformationTheory {
 
     private int pxSampleLock = -1;
     private float[] _probabilityX;
-    protected float[] probabilityX {
+    public float[] probabilityX {
       get {
         if (pxSampleLock != samples) {
           for (int i = 0; i < binCount; i++) {
@@ -103,7 +103,7 @@ namespace SeawispHunter.InformationTheory {
 
     private int pySampleLock = -1;
     private float[] _probabilityY;
-    protected float[] probabilityY {
+    public float[] probabilityY {
       get {
         if (pySampleLock != samples) {
           for (int j = 0; j < binCount; j++) {
@@ -132,7 +132,7 @@ namespace SeawispHunter.InformationTheory {
       }
     }
 
-    public FrequencyPair(int binCount, Func<X, int> binXFunc, Func<Y, int> binYFunc) {
+    public Tally(int binCount, Func<X, int> binXFunc, Func<Y, int> binYFunc) {
       this.binCount = binCount;
       this.binXFunc = binXFunc;
       this.binYFunc = binYFunc;
@@ -211,83 +211,36 @@ namespace SeawispHunter.InformationTheory {
                       /__               p(x)
     */
     public float EntropyYGivenX() {
-      float accum = 0f;
-      for (int i = 0; i < binCount; i++) {
-        int xCount = 0;
-        for (int j = 0; j < binCount; j++)
-          xCount += counts[i, j];
-        float p_x = (float) xCount / samples;
-
-        for (int j = 0; j < binCount; j++) {
-          if (counts[i, j] != 0 && xCount != 0) {
-            float p_xy = (float) counts[i, j] / samples;
-            accum += p_xy * (float) Math.Log(p_xy / p_x);
-          }
-        }
-      }
-      return -accum / (float) Math.Log(binCount);
+      return ProbabilityDistribution.ConditionalEntropyYX(probabilityXY, probabilityX, binCount);
     }
 
     public float EntropyXGivenY() {
-      float accum = 0f;
-      for (int j = 0; j < binCount; j++) {
-        int yCount = 0;
-        for (int i = 0; i < binCount; i++)
-          yCount += counts[i, j];
-        float p_y = (float) yCount / samples;
-
-        for (int i = 0; i < binCount; i++) {
-          if (counts[i, j] != 0 && yCount != 0) {
-            float p_xy = (float) counts[i, j] / samples;
-            // XXX: Can avoid dividing by samples twice. They cancel out.
-            accum += p_xy * (float) Math.Log(p_xy / p_y);
-          }
-        }
-      }
-      return -accum / (float) Math.Log(binCount);
+      return ProbabilityDistribution.ConditionalEntropyXY(probabilityXY, probabilityY, binCount);
     }
 
     public float EntropyXY() {
-      float accum = 0f;
-      for (int i = 0; i < binCount; i++) {
-        for (int j = 0; j < binCount; j++) {
-          if (counts[i, j] != 0) {
-            float p_xy = (float) counts[i, j] / samples;
-            accum += p_xy * (float) Math.Log(p_xy);
-          }
-        }
-      }
-      return -accum / (float) Math.Log(binCount);
+      return ProbabilityDistribution.JointEntropy(probabilityXY, binCount);
     }
 
     /** Calculate the entropy. */
     public float EntropyX() {
-      float accum = 0f;
-      for (int i = 0; i < binCount; i++) {
-        float p_x = ProbabilityXByBin(i);
-        accum += p_x * (float) Math.Log(p_x);
-      }
-      return -accum / (float) Math.Log(binCount);
+      return ProbabilityDistribution.Entropy(probabilityX, binCount);
     }
 
     public float EntropyY() {
-      float accum = 0f;
-      for (int j = 0; j < binCount; j++) {
-        float p_y = ProbabilityYByBin(j);
-        accum += p_y * (float) Math.Log(p_y);
-      }
-      return -accum / (float) Math.Log(binCount);
+      return ProbabilityDistribution.Entropy(probabilityY, binCount);
     }
 
     public float MutualInformationXY() {
+      return ProbabilityDistribution.MutualInformation(probabilityX, probabilityY, probabilityXY, binCount);
       return EntropyX() + EntropyY() - EntropyXY();
     }
 
   }
 
-public class FrequencyPairAlphabet : FrequencyPair<string, int> {
+public class TallyAlphabetPair : Tally<string, int> {
 
-  public FrequencyPairAlphabet(string[] xalphabet)
+  public TallyAlphabetPair(string[] xalphabet)
     : base(xalphabet.Length,
            x => Array.IndexOf(xalphabet, x),
            y => y) { }

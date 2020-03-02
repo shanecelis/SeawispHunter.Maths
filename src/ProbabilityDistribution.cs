@@ -1,14 +1,20 @@
 using System;
 
-public static class Probability {
+/** Probability distribution
 
-  public static bool IsValidDistribution(float[] p) {
+    Defined as an array of floats that sum to 1 and each item is greater than or
+    equal to 0 and less than or equal to 1.
+ */
+public static class ProbabilityDistribution {
+
+  public static bool IsValid(float[] p) {
     float sum = 0f;
     for (int i = 0; i < p.Length; i++)
       sum += p[i];
     return sum == 1f;
   }
-  public static void NormalizeDistribution(float[] p) {
+
+  public static void Normalize(float[] p) {
     float sum = 0f;
     for (int i = 0; i < p.Length; i++)
       sum += p[i];
@@ -16,22 +22,22 @@ public static class Probability {
       p[i] /= sum;
   }
 
-  public static bool IsValidDistribution(float[,] p) {
+  public static bool IsValid(float[,] p) {
     float sum = 0f;
     for (int i = 0; i < p.GetLength(0); i++)
-      for (int j = 0; j < p.GetLength(0); j++)
+      for (int j = 0; j < p.GetLength(1); j++)
         sum += p[i, j];
     return sum == 1f;
   }
 
-  public static void NormalizeDistribution(float[,] p) {
+  public static void Normalize(float[,] p) {
     float sum = 0f;
     for (int i = 0; i < p.GetLength(0); i++)
-      for (int j = 0; j < p.GetLength(0); j++)
+      for (int j = 0; j < p.GetLength(1); j++)
         sum += p[i, j];
 
     for (int i = 0; i < p.GetLength(0); i++)
-      for (int j = 0; j < p.GetLength(0); j++)
+      for (int j = 0; j < p.GetLength(1); j++)
         p[i, j] /= sum;
   }
 
@@ -43,6 +49,22 @@ public static class Probability {
       return -accum / (float) Math.Log(basis.Value);
     else
       return -accum;
+  }
+
+  public static float[,] ConditionalProbabilityYX(float[,] p_xy, float[] p_x) {
+    float[,] result = new float[p_xy.GetLength(0), p_xy.GetLength(1)];
+    for (int i = 0; i < p_xy.GetLength(0); i++)
+      for (int j = 0; j < p_xy.GetLength(1); j++)
+        result[i, j] = p_xy[i, j] / p_x[i];
+    return result;
+  }
+
+  public static float[,] ConditionalProbabilityXY(float[,] p_xy, float[] p_y) {
+    float[,] result = new float[p_xy.GetLength(0), p_xy.GetLength(1)];
+    for (int i = 0; i < p_xy.GetLength(0); i++)
+      for (int j = 0; j < p_xy.GetLength(1); j++)
+        result[i, j] = p_xy[i, j] / p_y[j];
+    return result;
   }
 
   public static float ConditionalEntropyYX(float[,] p_xy, float[] p_x, int? basis = null) {
@@ -85,7 +107,7 @@ public static class Probability {
       return -accum;
   }
 
-  public static float[] MarginalDistributionX(float[,] p_xy) {
+  public static float[] MarginalX(float[,] p_xy) {
     float[] p_x = new float[p_xy.GetLength(0)];
     for (int i = 0; i < p_xy.GetLength(0); i++)
       for (int j = 0; j < p_xy.GetLength(1); j++)
@@ -93,7 +115,7 @@ public static class Probability {
     return p_x;
   }
 
-  public static float[] MarginalDistributionY(float[,] p_xy) {
+  public static float[] MarginalY(float[,] p_xy) {
     float[] p_y = new float[p_xy.GetLength(1)];
     for (int i = 0; i < p_xy.GetLength(0); i++)
       for (int j = 0; j < p_xy.GetLength(1); j++)
