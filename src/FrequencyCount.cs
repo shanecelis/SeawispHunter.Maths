@@ -83,11 +83,63 @@ namespace SeawispHunter.InformationTheory {
     public readonly Func<X, int> binXFunc;
     public readonly Func<Y, int> binYFunc;
 
+
+    private int pxSampleLock = -1;
+    private float[] _probabilityX;
+    protected float[] probabilityX {
+      get {
+        if (pxSampleLock != samples) {
+          for (int i = 0; i < binCount; i++) {
+            int accum = 0;
+            for (int j = 0; j < binCount; j++)
+              accum += counts[i, j];
+            _probabilityX[i] = (float) accum / samples;
+          }
+          pxSampleLock = samples;
+        }
+        return _probabilityX;
+      }
+    }
+
+    private int pySampleLock = -1;
+    private float[] _probabilityY;
+    protected float[] probabilityY {
+      get {
+        if (pySampleLock != samples) {
+          for (int j = 0; j < binCount; j++) {
+            int accum = 0;
+            for (int i = 0; i < binCount; i++)
+              accum += counts[i, j];
+            _probabilityY[j] = (float) accum / samples;
+          }
+          pySampleLock = samples;
+        }
+        return _probabilityY;
+      }
+    }
+
+    private int pxySampleLock = -1;
+    private float[,] _probabilityXY;
+    public float[,] probabilityXY {
+      get {
+        if (pxySampleLock != samples) {
+          for (int i = 0; i < binCount; i++)
+            for (int j = 0; j < binCount; j++)
+              _probabilityXY[i, j] = (float) counts[i, j] / samples;
+          pxySampleLock = samples;
+        }
+        return _probabilityXY;
+      }
+    }
+
     public FrequencyPair(int binCount, Func<X, int> binXFunc, Func<Y, int> binYFunc) {
       this.binCount = binCount;
       this.binXFunc = binXFunc;
       this.binYFunc = binYFunc;
       this.counts = new int[binCount, binCount];
+      this._probabilityX = new float[binCount];
+      this._probabilityY = new float[binCount];
+      this._probabilityXY = new float[binCount, binCount];
     }
 
     /** Add a sample to its frequency count. */
@@ -105,7 +157,11 @@ namespace SeawispHunter.InformationTheory {
     /** Reset the frequency counter. */
     public void Clear() {
       Array.Clear(counts, 0, counts.Length);
+      Array.Clear(_probabilityX, 0, _probabilityX.Length);
+      Array.Clear(_probabilityY, 0, _probabilityY.Length);
       samples = 0;
+      pxSampleLock = -1;
+      pySampleLock = -1;
     }
 
     /** Return the estimated probability of an element in X. */

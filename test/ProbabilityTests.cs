@@ -3,15 +3,16 @@ using Xunit;
 using SeawispHunter.InformationTheory;
 
 namespace test {
-/**
-  https://www.cl.cam.ac.uk/teaching/0910/InfoTheory/Exercises09.pdf
-
- */
 public class ProbabilityTests {
   float[,] p_xy;
   float[] p_x;
   float[] p_y;
-  public ProbabilityTests() {
+
+  /**
+     https://www.cl.cam.ac.uk/teaching/0910/InfoTheory/Exercises09.pdf
+  */
+  [Fact]
+  public void TestMarginalDistributionX() {
     p_xy = new [,] {
       { 1/8f, 1/16f, 1/32f, 1/32f},
       { 1/16f, 1/8f, 1/32f, 1/32f},
@@ -20,10 +21,6 @@ public class ProbabilityTests {
     };
     p_x = Probability.MarginalDistributionX(p_xy);
     p_y = Probability.MarginalDistributionY(p_xy);
-  }
-
-  [Fact]
-  public void TestMarginalDistributionX() {
     Assert.True(Probability.IsValidDistribution(p_x));
     Assert.True(Probability.IsValidDistribution(p_y));
     Assert.True(Probability.IsValidDistribution(p_xy));
