@@ -3,22 +3,42 @@ using System.Collections.Generic;
 
 namespace SeawispHunter.InformationTheory {
 
-public class FrequencyArray<T> {
+public class ArrayTally<T> {
 
   public readonly int binCount;
   int[,] counts;
   int samples = 0;
   public readonly Func<T, int> binFunc;
 
-  public FrequencyArray(int binCount, Func<T, int> binFunc) {
+  private int sampleAt = -1;
+  private float[][] _probability;
+  public float[][] probability {
+    get {
+      if (sampleAt != samples) {
+        for (int i = 0; i < counts.GetLength(0); i++) {
+          for (int j = 0; j < counts.GetLength(1); j++)
+            _probability[i][j] = (float) counts[i, j] / samples;
+        }
+        sampleAt = samples;
+      }
+      return _probability;
+    }
+  }
+
+  public ArrayTally(int binCount, Func<T, int> binFunc) {
     this.binCount = binCount;
     this.binFunc = binFunc;
   }
 
   /** Add a sample to the frequency count. */
   public void Add(T[] x) {
-    if (counts == null)
+    if (counts == null) {
       counts = new int[x.Length, binCount];
+      _probability = new float[x.Length][];
+      for (int i = 0; i < x.Length; i++)
+        _probability[i] = new float[binCount];
+    }
+
     if (x.Length != counts.GetLength(0))
       throw new Exception($"Expected {counts.GetLength(0)} elements; received {x.Length}.");
     for (int i = 0; i < x.Length; i++) {
@@ -33,6 +53,8 @@ public class FrequencyArray<T> {
   /** Reset the frequency counter. */
   public void Clear() {
     Array.Clear(counts, 0, counts.Length);
+    Array.Clear(_probability, 0, _probability.Length);
+    sampleAt = -1;
     samples = 0;
   }
 
@@ -46,37 +68,27 @@ public class FrequencyArray<T> {
 
   /** Calculate the entropy. */
   public float[] Entropy() {
-
     int dataCount = counts.GetLength(0);
     float[] entropy = new float[counts.GetLength(0)];
-    float accum;
-
     for (int i = 0; i < dataCount; i++) {
-      accum = 0f;
-      for (int j = 0; j < binCount; j++) {
-        if (counts[i, j] != 0) {
-          float p_j = (float) counts[i, j] / samples;
-          accum += p_j * (float) Math.Log(p_j);
-        }
-      }
-      entropy[i] = -accum / (float) Math.Log(binCount);
+      entropy[i] = ProbabilityDistribution.Entropy(probability[i]);
     }
     return entropy;
   }
 }
 
-public class FrequencyArraySingle : FrequencyArray<float> {
+public class FrequencyArrayTallySingle : ArrayTally<float> {
 
-  public FrequencyArraySingle(int binCount, float min, float max)
+  public FrequencyArrayTallySingle(int binCount, float min, float max)
     : base(binCount, x => (int) ((Clamp(x, min, max) - min) / (max - min) * (binCount - 1))) { }
 
   static float Clamp(float x, float min, float max) => Math.Min(Math.Max(x, min), max);
 
 }
 
-public class FrequencyArrayAlphabet : FrequencyArray<string> {
+public class FrequencyArrayTallyAlphabet : ArrayTally<string> {
 
-  public FrequencyArrayAlphabet(string[] alphabet)
+  public FrequencyArrayTallyAlphabet(string[] alphabet)
     : base(alphabet.Length, x => Array.IndexOf(alphabet, x)) { }
 }
 }

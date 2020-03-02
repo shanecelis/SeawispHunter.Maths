@@ -44,7 +44,8 @@ public static class ProbabilityDistribution {
   public static float Entropy(float[] p, int? basis = null) {
     float accum = 0f;
     for (int i = 0; i < p.Length; i++)
-      accum += p[i] * (float) Math.Log(p[i]);
+      if (p[i] != 0f)
+        accum += p[i] * (float) Math.Log(p[i]);
     if (basis.HasValue)
       return -accum / (float) Math.Log(basis.Value);
     else
