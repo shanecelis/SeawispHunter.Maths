@@ -10,7 +10,7 @@ public class TallyTests {
     fc.Add(0f);
     Assert.Equal(1f, fc.Probability(0f));
     Assert.Equal(0f, fc.Probability(1f));
-    Assert.Equal(0f, fc.Entropy());
+    Assert.Equal(0f, ProbabilityDistribution.Entropy(fc.probability));
   }
 
   [Fact]
@@ -30,7 +30,7 @@ public class TallyTests {
     Assert.Equal(0.5f, fc.Probability(0f));
     Assert.Equal(0f, fc.Probability(1f));
     Assert.Equal(0.5f, fc.Probability(0.5f));
-    Assert.Equal(0.301f, fc.Entropy(), 3);
+    Assert.Equal(0.301f, ProbabilityDistribution.Entropy(fc.probability, fc.binCount), 3);
   }
 
   [Fact]
@@ -40,7 +40,7 @@ public class TallyTests {
     fc.Add("b");
     Assert.Equal(0.5f, fc.Probability("a"));
     Assert.Equal(0.5f, fc.Probability("b"));
-    Assert.Equal(1f, fc.Entropy(), 2);
+    Assert.Equal(1f, ProbabilityDistribution.Entropy(fc.probability, fc.binCount), 2);
   }
 
   [Fact]
@@ -50,7 +50,6 @@ public class TallyTests {
     fc.Add("b");
     Assert.Throws<ArgumentException>(() => fc.Add("c"));
   }
-
 
   [Fact]
   public void TestPairedAlphabet() {

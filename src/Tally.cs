@@ -9,11 +9,25 @@ namespace SeawispHunter.InformationTheory {
     int[] counts;
     int samples = 0;
     public readonly Func<T, int> binFunc;
+    
+    private int sampleAt = -1;
+    private float[] _probability;
+    public float[] probability {
+      get {
+        if (sampleAt != samples) {
+          for (int i = 0; i < binCount; i++)
+            _probability[i] = (float) counts[i] / samples;
+          sampleAt = samples;
+        }
+        return _probability;
+      }
+    }
 
     public Tally(int binCount, Func<T, int> binFunc) {
       this.binCount = binCount;
       this.binFunc = binFunc;
       this.counts = new int[binCount];
+      this._probability = new float[binCount];
     }
 
     /** Add a sample to its frequency count. */
@@ -29,34 +43,13 @@ namespace SeawispHunter.InformationTheory {
     public void Clear() {
       Array.Clear(counts, 0, binCount);
       samples = 0;
+      Array.Clear(_probability, 0, binCount);
+      sampleAt = -1;
     }
 
     /** Return the estimated probability of an element. */
-    public float Probability(T x) {
-      return (float) counts[binFunc(x)] / samples;
-    }
+    public float Probability(T x) => probability[binFunc(x)];
 
-    /** Calculate the entropy.
-
-                                   ln(p )
-                     __ 10             j
-          E  =   -  \           p  ------
-                    /__ j = 1    j ln(10)
-
-      Doncieux, S., CEC, J. M. E. C., 2013. (n.d.). Behavioral diversity
-      with multiple behavioral distances. Ieeexplore.Ieee.org.
-      http://doi.org/10.1109/CEC.2013.6557731
-  */
-    public float Entropy() {
-      float accum = 0f;
-      for (int j = 0; j < binCount; j++) {
-        if (counts[j] != 0) {
-          float p_j = (float) counts[j] / samples;
-          accum += p_j * (float) Math.Log(p_j);
-        }
-      }
-      return -accum / (float) Math.Log(binCount);
-    }
   }
 
   public class Tally<X, Y> {
@@ -68,49 +61,49 @@ namespace SeawispHunter.InformationTheory {
     public readonly Func<X, int> binX;
     public readonly Func<Y, int> binY;
 
-    private int pxSampleLock = -1;
+    private int sampleAtX = -1;
     private float[] _probabilityX;
     public float[] probabilityX {
       get {
-        if (pxSampleLock != samples) {
+        if (sampleAtX != samples) {
           for (int i = 0; i < binCountX; i++) {
             int accum = 0;
             for (int j = 0; j < binCountY; j++)
               accum += counts[i, j];
             _probabilityX[i] = (float) accum / samples;
           }
-          pxSampleLock = samples;
+          sampleAtX = samples;
         }
         return _probabilityX;
       }
     }
 
-    private int pySampleLock = -1;
+    private int sampleAtY = -1;
     private float[] _probabilityY;
     public float[] probabilityY {
       get {
-        if (pySampleLock != samples) {
+        if (sampleAtY != samples) {
           for (int j = 0; j < binCountX; j++) {
             int accum = 0;
             for (int i = 0; i < binCountY; i++)
               accum += counts[i, j];
             _probabilityY[j] = (float) accum / samples;
           }
-          pySampleLock = samples;
+          sampleAtY = samples;
         }
         return _probabilityY;
       }
     }
 
-    private int pxySampleLock = -1;
+    private int sampleAtXY = -1;
     private float[,] _probabilityXY;
     public float[,] probabilityXY {
       get {
-        if (pxySampleLock != samples) {
+        if (sampleAtXY != samples) {
           for (int i = 0; i < binCountX; i++)
             for (int j = 0; j < binCountY; j++)
               _probabilityXY[i, j] = (float) counts[i, j] / samples;
-          pxySampleLock = samples;
+          sampleAtXY = samples;
         }
         return _probabilityXY;
       }
@@ -147,9 +140,9 @@ namespace SeawispHunter.InformationTheory {
       Array.Clear(_probabilityY, 0, _probabilityY.Length);
       Array.Clear(_probabilityXY, 0, _probabilityXY.Length);
       samples = 0;
-      pxSampleLock = -1;
-      pySampleLock = -1;
-      pxySampleLock = -1;
+      sampleAtX = -1;
+      sampleAtY = -1;
+      sampleAtXY = -1;
     }
 
     /** Return the estimated probability of an element in X. */
