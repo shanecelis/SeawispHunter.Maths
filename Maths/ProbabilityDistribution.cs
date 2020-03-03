@@ -1,10 +1,11 @@
 using System;
 
+namespace SeawispHunter.Maths {
 /** Probability distribution
 
     Defined as an array of floats that sum to 1 and each item is greater than or
     equal to 0 and less than or equal to 1.
- */
+*/
 public static class ProbabilityDistribution {
 
   public static bool IsValid(float[] p) {
@@ -71,7 +72,8 @@ public static class ProbabilityDistribution {
   public static float ConditionalEntropyYX(float[,] p_xy, float[] p_x, int? basis = null) {
     float accum = 0f;
     if (p_xy.GetLength(0) != p_x.Length)
-      throw new ArgumentException($"Expected p_xy.GetLength(0) ({p_xy.GetLength(0)}) to equal p_x.Length ({p_x.Length}).");
+      throw new
+        ArgumentException($"Expected p_xy.GetLength(0) ({p_xy.GetLength(0)}) to equal p_x.Length ({p_x.Length}).");
     for (int i = 0; i < p_xy.GetLength(0); i++)
       for (int j = 0; j < p_xy.GetLength(1); j++)
         if (p_xy[i, j] != 0f && p_x[i] != 0f)
@@ -85,15 +87,16 @@ public static class ProbabilityDistribution {
   public static float ConditionalEntropyXY(float[,] p_xy, float[] p_y, int? basis = null) {
     float accum = 0f;
     if (p_xy.GetLength(1) != p_y.Length)
-      throw new ArgumentException($"Expected p_xy.GetLength(1) ({p_xy.GetLength(1)}) to equal p_y.Length ({p_y.Length}).");
+      throw new
+        ArgumentException($"Expected p_xy.GetLength(1) ({p_xy.GetLength(1)}) to equal p_y.Length ({p_y.Length}).");
     for (int i = 0; i < p_xy.GetLength(0); i++)
       for (int j = 0; j < p_xy.GetLength(1); j++)
         if (p_xy[i, j] != 0f && p_y[j] != 0f)
           accum += p_xy[i, j] * (float) Math.Log(p_xy[i, j] / p_y[j]);
     if (basis.HasValue)
-      return - accum / (float) Math.Log(basis.Value);
+      return -accum / (float) Math.Log(basis.Value);
     else
-      return - accum;
+      return -accum;
   }
 
   public static float JointEntropy(float[,] p_xy, int? basis = null) {
@@ -128,4 +131,5 @@ public static class ProbabilityDistribution {
     return Entropy(p_x, basis) + Entropy(p_y, basis) - JointEntropy(p_xy, basis);
   }
 
+}
 }

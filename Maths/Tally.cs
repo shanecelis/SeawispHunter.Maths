@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SeawispHunter.InformationTheory {
+namespace SeawispHunter.Maths {
 
   public class Tally<T> {
 

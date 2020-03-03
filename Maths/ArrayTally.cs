@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SeawispHunter.InformationTheory {
+namespace SeawispHunter.Maths {
   public class ArrayTally<X, Y> {
 
     public readonly int binCountX;
@@ -213,7 +213,7 @@ namespace SeawispHunter.InformationTheory {
     public FrequencyArrayTallySingle(int binCount, float min, float max)
       : base(binCount, x => (int) ((Clamp(x, min, max) - min) / (max - min) * (binCount - 1))) { }
 
-    static float Clamp(float x, float min, float max) => Math.Min(Math.Max(x, min), max);
+    static float Clamp(float x, float min, float max) => System.Math.Min(System.Math.Max(x, min), max);
 
   }
 

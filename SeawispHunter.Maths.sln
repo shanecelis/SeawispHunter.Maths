@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InformationTheory", "src\InformationTheory.csproj", "{F3F6DB56-FB9D-48C6-B0F7-DFD2EF4571E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maths", "Maths\Maths.csproj", "{F3F6DB56-FB9D-48C6-B0F7-DFD2EF4571E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{281F8581-5681-4207-A90C-102F8500DED8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maths.Tests", "Maths.Tests\Maths.Tests.csproj", "{281F8581-5681-4207-A90C-102F8500DED8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

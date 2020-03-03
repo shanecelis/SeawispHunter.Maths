@@ -1,8 +1,8 @@
 using System;
 using Xunit;
-using SeawispHunter.InformationTheory;
+using SeawispHunter.Maths;
 
-namespace test {
+namespace SeawispHunter.Maths.Tests {
 public class TallyTests {
   [Fact]
   public void TestOneSample() {
