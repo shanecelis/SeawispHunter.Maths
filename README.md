@@ -40,24 +40,34 @@ Example 0: Compute Entropy
 --------------------------
 
 Suppose I have an artificial neural network that I am trying to analyze. Each
-node can produce values of [0, 1].  We can discretize this into 10 different bins.
+node can produce values of [0, 1]. We can discretize this into 3 different bins.
+(Normally I might want more bins maybe 10 but this is easier to follow.)
 
 ```cs
-int binCount = 10;
-Tally<float> tally = new Tally<float>(binCount, x => (int) (x * (binCount - 1)));
+int binCount = 3;
+Tally<float> tally = new Tally<float>(binCount, x => (int) (x * binCount));
 
 // Some where, this is called repeatedly.
 // tally.Add(neuron.value);
 // But let's supply some fake values for demonstration purposes.
-tally.Add(0.3f);
+tally.Add(0.2f);
 tally.Add(0.1f);
 tally.Add(0.4f);
-// ...
+tally.Add(0.5f);
 
 // Finally we analyze it.
 float[] p = tally.probability;
+Assert.Equal(new [] { 2/4f, 2/4f, 0f }, p);
 float H = ProbabilityDistribution.Entropy(p);
-Assert.Equal(1.1f, H, 1);
+// Here's the entropy without any normalization.
+Assert.Equal(0.7f, H, 1);
+
+// Let's use a base of 2 so the entropy is in the units of bits.
+float Hbits = ProbabilityDistribution.Entropy(p, 2);
+Assert.Equal(1f, Hbits, 1);
+// So this neuron's value carries one bit of information. It's either going
+// into the first bin or the second bin at an equal probability and never
+// going into the third bin.
 ```
 
 
@@ -165,6 +175,8 @@ Assert.Equal(0f, Heffector_sensor, 1);
 // is completely determined by the sensor, which makes sense since they're
 // the same values.
 ```
+
+All example code can be run and modified as tests in the `ReadmeTests.cs` file.
 
 License
 -------
