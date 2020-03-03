@@ -1,3 +1,11 @@
+/* Original code[1] Copyright (c) 2020 Shane Celis[2]
+   Licensed under the MIT License[3]
+
+   [1]: https://github.com/shanecelis/SeawispHunter.Maths
+   [2]: https://twitter.com/shanecelis
+   [3]: https://opensource.org/licenses/MIT
+*/
+
 using System;
 using Xunit;
 using SeawispHunter.Maths;
