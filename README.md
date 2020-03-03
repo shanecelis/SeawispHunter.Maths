@@ -13,6 +13,65 @@ Mutual Information. These are all available in the static class
 `ProbabilityDistribution`. It expects probability distributions as an array of
 floats `float[]` and joint probability distributions as `float[,]`.
 
+The class `Tally` allows one to create probability distributions from events
+that have been seen. 
+
+Example 0: Compute Entropy
+--------------------------
+
+Suppose I have an artificial neural network that I am trying to analyze. Each
+node can produce values of [0, 1].  We can discretize this into 10 different bins.
+
+```cs
+int binCount = 10;
+Tally<float> tally = new Tally<float>(binCount, x => (int) (x * (binCount - 1)));
+
+// Some where, this is called repeatedly.
+// tally.Add(neuron.value);
+// But let's supply some fake values for demonstration purposes.
+tally.Add(0.3f);
+tally.Add(0.1f);
+tally.Add(0.4f);
+// ...
+
+// Finally we analyze it.
+float[] p = tally.probability;
+float H = ProbabilityDistribution.Entropy(p);
+Assert.Equal(1.1f, H, 1);
+```
+
+
+Example 1: Compute Joint Entropy
+--------------------------------
+
+Suppose I have an artificial neural network with sensors and effectors that I am
+want to analyze to determine if knowledge of sensor helps determine the
+effector, i.e., the conditional entropy `H(effector|sensor)`. Each node can produce values of [0,
+1]. We discretize these into 10 different bins. In this case, we need to collect
+two values.
+
+```cs
+int binCount = 10;
+Tally<float, float> tally 
+  = new Tally<float, float>(binCount, x => (int) (x * (binCount - 1)),
+                            binCount, y => (int) (y * (binCount - 1)));
+
+// Some where, this is called repeatedly.
+// tally.Add(sensor.value, effector.value);
+// But let's supply some fake values for demonstration purposes.
+tally.Add(0.3f, 0.1f);
+tally.Add(0.1f, 0.5f);
+tally.Add(0.4f, 0.9f);
+// ...
+
+// Finally we analyze it.
+float[,] pxy = tally.probabilityXY;
+float[] px = tally.probabilityX;
+float H = ProbabilityDistribution.ConditionalEntropy(pxy, px);
+Assert.Equal(1.1f, H, 1);
+```
+
+
 Entropy
 -------
 

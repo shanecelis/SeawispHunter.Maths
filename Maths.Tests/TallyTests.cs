@@ -303,5 +303,6 @@ public class TallyTests {
                      + ProbabilityDistribution.ConditionalEntropyXY(fc.probabilityXY, fc.probabilityY), 1);
     Assert.Equal(0f, fc.MutualInformationXY(), 2);
   }
+
 }
 }
