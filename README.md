@@ -36,10 +36,6 @@ probability distributions as a multidimensional array of floats `float[,]`.
 The class `Tally` can create probability distributions from events. Here are a
 few examples.
 
-Note: Why floats and not doubles? Mainly because much of my work happens in
-Unity 3D which has a strong preference for floats.
-
-
 Example 0: Compute Entropy
 --------------------------
 
