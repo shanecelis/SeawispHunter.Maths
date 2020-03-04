@@ -157,7 +157,7 @@ float[] px = tally.probabilityX[1];
 Assert.Equal(new [] { 1/4f, 1/4f, 1/4f, 1/4f }, px);
 float[] py = tally.probabilityY[0];
 Assert.Equal(new [] { 1/4f, 1/4f, 1/4f, 1/4f }, py);
-float[,] pxy = tally.probabilityXY[0, 0];
+float[,] pxy = tally.probabilityXY[1, 0];
 float Hsensor = ProbabilityDistribution.Entropy(px, 2);
 float Heffector = ProbabilityDistribution.Entropy(py, 2);
 // H(effector | sensor)

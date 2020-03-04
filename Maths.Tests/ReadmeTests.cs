@@ -110,11 +110,18 @@ public class ReadmeTests {
     // is the same as the first element of Y, we'll get something different.
 
     // Finally we analyze it.
+
     float[] px = tally.probabilityX[1];
     Assert.Equal(new [] { 1/4f, 1/4f, 1/4f, 1/4f }, px);
     float[] py = tally.probabilityY[0];
     Assert.Equal(new [] { 1/4f, 1/4f, 1/4f, 1/4f }, py);
-    float[,] pxy = tally.probabilityXY[0, 0];
+    float[,] pxy = tally.probabilityXY[1, 0];
+    Assert.Equal(new [,] {
+        { 1/4f,   0f,   0f,   0f },
+        {   0f, 1/4f,   0f,   0f },
+        {   0f,   0f, 1/4f,   0f },
+        {   0f,   0f,   0f, 1/4f },
+      }, pxy);
     float Hsensor = ProbabilityDistribution.Entropy(px, 2);
     float Heffector = ProbabilityDistribution.Entropy(py, 2);
     // H(effector | sensor)
@@ -131,6 +138,19 @@ public class ReadmeTests {
     // how the effector will behave. H(effector|sensor) = 0 means the effector
     // is completely determined by the sensor, which makes sense since they're
     // the same values.
+
+
+    // Footnote: I had a typo where I ran the computation against [0, 0] instead
+    // of [1, 0], but I got the right result which surprised me. Why the same
+    // result? Because the above and below matrix when you sum up the elements
+    // with px you get the same thing.
+
+    Assert.Equal(new [,] {
+        {   0f,   0f,   0f,   0f },
+        {   0f,   0f,   0f,   0f },
+        { 1/4f, 1/4f, 1/4f, 1/4f },
+        {   0f,   0f,   0f,   0f },
+      }, tally.probabilityXY[0, 0]);
   }
 
 }
