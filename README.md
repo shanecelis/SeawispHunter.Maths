@@ -22,7 +22,7 @@ Where is the minus signs? [Cleaned up for math hygiene reasons.](https://twitter
 Conditional Entropy
 -------------------
 
-![H(Y|X) = - \sum p(x, y) \log \frac{p(x, y)}{p(x)}](https://render.githubusercontent.com/render/math?math=H(Y%7CX)%20%3D%20-%20%5Csum%20p(x%2C%20y)%20%5Clog%20%5Cfrac%7Bp(x%2C%20y)%7D%7Bp(x)%7D)
+![H(Y|X) = \sum p(x, y) \log \frac{p(x)}{p(x, y)}](https://render.githubusercontent.com/render/math?math=H(Y%7CX)%20%3D%20%5Csum%20p(x%2C%20y)%20%5Clog%20%5Cfrac%7Bp(x)%7D%7Bp(x%2C%20y)%7D)
 
 Mutual Information
 ------------------
@@ -184,13 +184,33 @@ License
 This project is released under the MIT license.
 
 
-Note on Namespace
------------------
+Notes
+-----
+
+### Namespace
 
 I would have liked to use the namespace "SeawispHunter.Math"; however, that
 conflicts with the static class "System.Math". Now I'm not English but I guess
 University of Sussex exposed me to enough "Maths" that it felt natural enough to
 use it here.
+
+### Ascii LaTeX
+
+The source code often includes an ascii representation of the computation it performs.
+
+```
+  /**
+                 __               p(y)
+     H(X|Y)  =  \    p(x, y) log -------
+                /__              p(x, y)
+
+   */
+  public static float ConditionalEntropyXY(float[,] p_xy, float[] p_y, int? basis = null) {
+```
+
+These were done with [asciiTeX](http://asciitex.sourceforge.net), a Unix command
+line tool. You can [use yourself within your text
+editor](https://twitter.com/shanecelis/status/1235056471332675584).
 
 Contact
 -------
