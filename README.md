@@ -194,7 +194,7 @@ conflicts with the static class "System.Math". Now I'm not English but I guess
 University of Sussex exposed me to enough "Maths" that it felt natural enough to
 use it here.
 
-### Ascii LaTeX
+### Ascii TeX
 
 The source code often includes an ascii representation of the computation it performs.
 
@@ -211,6 +211,13 @@ The source code often includes an ascii representation of the computation it per
 These were done with [asciiTeX](http://asciitex.sourceforge.net), a Unix command
 line tool. You can [use yourself within your text
 editor](https://twitter.com/shanecelis/status/1235056471332675584).
+
+### TeX in Github Markdown
+
+Github does not support TeX in Markdown, but there's a
+[workaround](https://gist.github.com/a-rodin/fef3f543412d6e1ec5b6cf55bf197d7b)
+and a little [web app](https://alexanderrodin.com/github-latex-markdown/) that
+makes it easy to link to images generated from TeX.
 
 Contact
 -------
