@@ -238,5 +238,15 @@ public static class ProbabilityDistribution {
     return Entropy(p_x, basis) + Entropy(p_y, basis) - JointEntropy(p_xy, basis);
   }
 
+  /**
+     VI(X;Y)  =  H(X, Y)  -  I(X; Y)
+
+     Similar to Mutual Information I(X; Y) but it's a true metric; it obeys the
+     triangle inequality.
+   */
+  public static float VariationOfInformation(float[] p_x, float[] p_y, float[,] p_xy, int? basis = null) {
+    return JointEntropy(p_xy, basis) - MutualInformation(p_x, p_y, p_xy, basis);
+  }
+
 }
 }
