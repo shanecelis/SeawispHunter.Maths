@@ -11,12 +11,13 @@ using System.Collections.Generic;
 
 namespace SeawispHunter.Maths {
 
+/** Keep a tally of the kind of items added. */
 public class Tally<T> {
 
   public readonly int binCount;
   int[] counts;
   int samples = 0;
-  public readonly Func<T, int> binFunc;
+  public readonly Func<T, int> bin;
 
   private int sampleAt = -1;
   private float[] _probability;
@@ -31,16 +32,16 @@ public class Tally<T> {
     }
   }
 
-  public Tally(int binCount, Func<T, int> binFunc) {
+  public Tally(int binCount, Func<T, int> bin) {
     this.binCount = binCount;
-    this.binFunc = binFunc;
+    this.bin = bin;
     this.counts = new int[binCount];
     this._probability = new float[binCount];
   }
 
   /** Add a sample to its frequency count. */
   public void Add(T x) {
-    int i = binFunc(x);
+    int i = bin(x);
     if (i < 0 || i >= binCount)
       throw new ArgumentException($"Item {x} expected in bin [0, {binCount}) but placed in {i}.");
     counts[i]++;
@@ -50,17 +51,18 @@ public class Tally<T> {
   /** Reset the frequency counter. */
   public void Clear() {
     Array.Clear(counts, 0, binCount);
-    samples = 0;
     Array.Clear(_probability, 0, binCount);
+    samples = 0;
     sampleAt = -1;
   }
 
   /** Return the estimated probability of an element. */
-  public float Probability(T x) => probability[binFunc(x)];
-  public float EntropyX(int? basis = null)
+  public float Probability(T x) => probability[bin(x)];
+  public float Entropy(int? basis = null)
     => ProbabilityDistribution.Entropy(probability, basis);
 }
 
+/** Keep a tally of a pair of items added. */
 public class Tally<X, Y> {
 
   public readonly int binCountX;

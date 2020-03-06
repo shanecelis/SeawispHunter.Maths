@@ -8,7 +8,7 @@
 
 using System;
 
-namespace SeawispHunter.Maths {
+namespace SeawispHunter.Maths.Tests {
 
 public class ArrayTallySingle : ArrayTally<float, float> {
 
@@ -52,5 +52,19 @@ public class TallyAlphabet<Y> : Tally<string, Y> {
            binY) { }
 }
 
+public class FrequencyArrayTallySingle : ArrayTally<float> {
+
+  public FrequencyArrayTallySingle(int binCount, float min, float max)
+    : base(binCount, x => (int) ((Clamp(x, min, max) - min) / (max - min) * (binCount - 1))) { }
+
+  static float Clamp(float x, float min, float max) => System.Math.Min(System.Math.Max(x, min), max);
+
+}
+
+public class FrequencyArrayTallyAlphabet : ArrayTally<string> {
+
+  public FrequencyArrayTallyAlphabet(string[] alphabet)
+    : base(alphabet.Length, x => Array.IndexOf(alphabet, x)) { }
+}
 
 }
