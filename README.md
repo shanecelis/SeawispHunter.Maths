@@ -209,7 +209,7 @@ The source code often includes an ascii representation of the computation it per
 ```
 
 These were done with [asciiTeX](http://asciitex.sourceforge.net), a Unix command
-line tool. You can [use yourself within your text
+line tool. You can even [use it within your text
 editor](https://twitter.com/shanecelis/status/1235056471332675584).
 
 ### TeX in Github Markdown
