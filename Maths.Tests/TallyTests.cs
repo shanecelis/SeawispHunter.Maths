@@ -61,7 +61,8 @@ public class TallyTests {
 
   [Fact]
   public void TestPairedAlphabet() {
-    var fc = new TallyAlphabet<int>(new[] { "a", "b" }, 2, y => y);
+    int binCount = 2;
+    var fc = new TallyAlphabet<int>(new[] { "a", "b" }, binCount, y => y);
     fc.Add("a", 0);
     fc.Add("a", 0);
     fc.Add("a", 1);
@@ -80,14 +81,14 @@ public class TallyTests {
     Assert.Equal(2/4f, fc.ProbabilityYGivenX(1, "a"));
     Assert.Equal(4/5f, fc.ProbabilityYGivenX(0, "b"), 2);
     Assert.Equal(1/5f, fc.ProbabilityYGivenX(1, "b"), 2);
-    Assert.Equal(0.8f, fc.EntropyYGivenX(), 1);
-    Assert.Equal(0.9f, fc.EntropyXGivenY(), 1);
-    Assert.Equal(1.8f, fc.EntropyXY(), 1);
-    Assert.Equal(0.99f, fc.EntropyX(), 2);
-    Assert.Equal(0.9f, fc.EntropyY(), 1);
+    Assert.Equal(0.8f, fc.EntropyYGivenX(binCount), 1);
+    Assert.Equal(0.9f, fc.EntropyXGivenY(binCount), 1);
+    Assert.Equal(1.8f, fc.EntropyXY(binCount), 1);
+    Assert.Equal(0.99f, fc.EntropyX(binCount), 2);
+    Assert.Equal(0.9f, fc.EntropyY(binCount), 1);
     Assert.Equal(0f, fc.EntropyXGivenY() - fc.EntropyXY() + fc.EntropyY(), 1);
     Assert.Equal(0f, fc.EntropyYGivenX() - fc.EntropyXY() + fc.EntropyX(), 1);
-    Assert.Equal(0.07f, fc.MutualInformationXY(), 2);
+    Assert.Equal(0.07f, fc.MutualInformationXY(binCount), 2);
   }
 
   [Fact]
@@ -110,14 +111,14 @@ public class TallyTests {
     Assert.Equal(1f, fc.ProbabilityYGivenX(1, "a"));
     Assert.Equal(1f, fc.ProbabilityYGivenX(0, "b"), 2);
     Assert.Equal(0f, fc.ProbabilityYGivenX(1, "b"), 2);
-    Assert.Equal(0f, fc.EntropyYGivenX(), 1);
-    Assert.Equal(0f, fc.EntropyXGivenY(), 1);
-    Assert.Equal(1f, fc.EntropyXY(), 1);
-    Assert.Equal(1f, fc.EntropyX(), 2);
-    Assert.Equal(1f, fc.EntropyY(), 1);
+    Assert.Equal(0f, fc.EntropyYGivenX(2), 1);
+    Assert.Equal(0f, fc.EntropyXGivenY(2), 1);
+    Assert.Equal(1f, fc.EntropyXY(2), 1);
+    Assert.Equal(1f, fc.EntropyX(2), 2);
+    Assert.Equal(1f, fc.EntropyY(2), 1);
     Assert.Equal(0f, fc.EntropyXGivenY() - fc.EntropyXY() + fc.EntropyY(), 1);
     Assert.Equal(0f, fc.EntropyYGivenX() - fc.EntropyXY() + fc.EntropyX(), 1);
-    Assert.Equal(1f, fc.MutualInformationXY(), 2);
+    Assert.Equal(1f, fc.MutualInformationXY(2), 2);
   }
 
   [Fact]
@@ -140,16 +141,16 @@ public class TallyTests {
     Assert.Equal(1/2f, fc.ProbabilityYGivenX(1, "a"));
     Assert.Equal(1/2f, fc.ProbabilityYGivenX(0, "b"), 2);
     Assert.Equal(1/2f, fc.ProbabilityYGivenX(1, "b"), 2);
-    Assert.Equal(1f, fc.EntropyYGivenX(), 1);
-    Assert.Equal(1f, fc.EntropyXGivenY(), 1);
-    Assert.Equal(2f, fc.EntropyXY(), 1);
-    Assert.Equal(1f, fc.EntropyX(), 2);
-    Assert.Equal(1f, fc.EntropyY(), 1);
+    Assert.Equal(1f, fc.EntropyYGivenX(2), 1);
+    Assert.Equal(1f, fc.EntropyXGivenY(2), 1);
+    Assert.Equal(2f, fc.EntropyXY(2), 1);
+    Assert.Equal(1f, fc.EntropyX(2), 2);
+    Assert.Equal(1f, fc.EntropyY(2), 1);
     // H(X|Y) = H(X,Y) - H(Y)
     // This should always be true.
     Assert.Equal(0f, fc.EntropyXGivenY() - fc.EntropyXY() + fc.EntropyY(), 1);
     Assert.Equal(0f, fc.EntropyYGivenX() - fc.EntropyXY() + fc.EntropyX(), 1);
-    Assert.Equal(0f, fc.MutualInformationXY(), 2);
+    Assert.Equal(0f, fc.MutualInformationXY(2), 2);
   }
 
   [Fact]
@@ -269,7 +270,7 @@ public class TallyTests {
     Assert.Equal(1/3f, fc.ProbabilityYGivenX(1, "a"), 2);
     Assert.Equal(1/3f, fc.ProbabilityYGivenX(0, "b"), 2);
     Assert.Equal(1/3f, fc.ProbabilityYGivenX(1, "b"), 2);
-    Assert.Equal(1f, fc.EntropyYGivenX(), 1);
+    Assert.Equal(1f, fc.EntropyYGivenX(3), 1);
 
     Assert.Equal(9, fc.probabilityXY.Length);
     Assert.Equal(new [] { 1/3f, 1/3f, 1/3f }, fc.probabilityX);
@@ -282,17 +283,17 @@ public class TallyTests {
 
     Assert.Equal(1/2f, ProbabilityDistribution.ConditionalEntropyYX(fc.probabilityXY, fc.probabilityX, fc.probabilityXY.Length));
     Assert.Equal(1f, ProbabilityDistribution.ConditionalEntropyYX(fc.probabilityXY, fc.probabilityX, fc.probabilityX.Length));
-    Assert.Equal(1f, fc.EntropyXGivenY(), 1);
+    Assert.Equal(1f, fc.EntropyXGivenY(3), 1);
     Assert.Equal(1/2f, ProbabilityDistribution.ConditionalEntropyXY(fc.probabilityXY, fc.probabilityY, fc.probabilityXY.Length));
     Assert.Equal(1f, ProbabilityDistribution.ConditionalEntropyXY(fc.probabilityXY, fc.probabilityY, fc.probabilityY.Length));
-    Assert.Equal(2f, fc.EntropyXY(), 1);
+    Assert.Equal(2f, fc.EntropyXY(3), 1);
     Assert.Equal(2f, ProbabilityDistribution.JointEntropy(fc.probabilityXY, fc.probabilityX.Length), 1);
     Assert.Equal(1f, ProbabilityDistribution.JointEntropy(fc.probabilityXY, fc.probabilityXY.Length), 1);
     Assert.Equal(3.2f, ProbabilityDistribution.JointEntropy(fc.probabilityXY, 2), 1);
-    Assert.Equal(1f, fc.EntropyX(), 2);
+    Assert.Equal(1f, fc.EntropyX(3), 2);
     Assert.Equal(1f, ProbabilityDistribution.Entropy(fc.probabilityX, fc.probabilityX.Length), 2);
     Assert.Equal(0.5f, ProbabilityDistribution.Entropy(fc.probabilityX, fc.probabilityXY.Length), 2);
-    Assert.Equal(1f, fc.EntropyY(), 1);
+    Assert.Equal(1f, fc.EntropyY(3), 1);
     Assert.Equal(1f, ProbabilityDistribution.Entropy(fc.probabilityY, fc.probabilityY.Length), 2);
     Assert.Equal(0.5f, ProbabilityDistribution.Entropy(fc.probabilityY, fc.probabilityXY.Length), 2);
     // H(X|Y) = H(X,Y) - H(Y)
@@ -301,7 +302,7 @@ public class TallyTests {
     Assert.Equal(0f, ProbabilityDistribution.ConditionalEntropyXY(fc.probabilityXY, fc.probabilityY)
                      - ProbabilityDistribution.JointEntropy(fc.probabilityXY)
                      + ProbabilityDistribution.ConditionalEntropyXY(fc.probabilityXY, fc.probabilityY), 1);
-    Assert.Equal(0f, fc.MutualInformationXY(), 2);
+    Assert.Equal(0f, fc.MutualInformationXY(3), 2);
   }
 
 }

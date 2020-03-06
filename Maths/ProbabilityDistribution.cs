@@ -9,6 +9,7 @@
 using System;
 
 namespace SeawispHunter.Maths {
+
 /** Probability distribution
 
     Defined as an array of floats that sum to 1 and each item is greater than or
@@ -26,6 +27,7 @@ public static class ProbabilityDistribution {
     float sum = 0f;
     for (int i = 0; i < p.Length; i++)
       sum += p[i];
+    // XXX: Should have an epsilon check here, not a bare equals for floats.
     return sum == 1f;
   }
 
@@ -56,6 +58,7 @@ public static class ProbabilityDistribution {
     for (int i = 0; i < p.GetLength(0); i++)
       for (int j = 0; j < p.GetLength(1); j++)
         sum += p[i, j];
+    // XXX: Should have an epsilon check here, not a bare equals for floats.
     return sum == 1f;
   }
 

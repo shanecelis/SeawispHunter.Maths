@@ -57,7 +57,8 @@ public class Tally<T> {
 
   /** Return the estimated probability of an element. */
   public float Probability(T x) => probability[binFunc(x)];
-
+  public float EntropyX(int? basis = null)
+    => ProbabilityDistribution.Entropy(probability, basis);
 }
 
 public class Tally<X, Y> {
@@ -153,76 +154,25 @@ public class Tally<X, Y> {
     sampleAtXY = -1;
   }
 
-  /** Return the estimated probability of an element in X. */
-  public float ProbabilityX(X x) {
-    int i = binX(x);
-    return ProbabilityXByBin(i);
-  }
-
-  protected float ProbabilityXByBin(int i) {
-    int accum = 0;
-    for (int j = 0; j < binCountY; j++)
-      accum += counts[i, j];
-    return (float) accum / samples;
-  }
-
-  protected float ProbabilityYByBin(int j) {
-    int accum = 0;
-    for (int i = 0; i < binCountX; i++)
-      accum += counts[i, j];
-    return (float) accum / samples;
-  }
-
-  public float ProbabilityXY(X x, Y y) {
-    int i = binX(x);
-    int j = binY(y);
-    return (float) counts[i, j] / samples;
-  }
-
-  public float ProbabilityXGivenY(X x, Y y) {
-    return ProbabilityXY(x, y) / ProbabilityY(y);
-  }
-
-  public float ProbabilityYGivenX(Y y, X x) {
-    return ProbabilityXY(x, y) / ProbabilityX(x);
-  }
-
-  /** Return the estimated probability of an element in Y. */
-  public float ProbabilityY(Y y) {
-    int j = binY(y);
-    return ProbabilityYByBin(j);
-  }
-
-  /** Calculate the conditional entropy.
-
-                      __              p(x, y)
-      H(Y|X)  =   -  \    p(x, y) log -------
-                    /__               p(x)
-  */
-  public float EntropyYGivenX() {
-    return ProbabilityDistribution.ConditionalEntropyYX(probabilityXY, probabilityX, binCountX);
-  }
-
-  public float EntropyXGivenY() {
-    return ProbabilityDistribution.ConditionalEntropyXY(probabilityXY, probabilityY, binCountY);
-  }
-
-  public float EntropyXY() {
-    return ProbabilityDistribution.JointEntropy(probabilityXY, binCountX);
-  }
-
-  /** Calculate the entropy. */
-  public float EntropyX() {
-    return ProbabilityDistribution.Entropy(probabilityX, binCountX);
-  }
-
-  public float EntropyY() {
-    return ProbabilityDistribution.Entropy(probabilityY, binCountY);
-  }
-
-  public float MutualInformationXY() {
-    return ProbabilityDistribution.MutualInformation(probabilityX, probabilityY, probabilityXY, binCountX);
-  }
+  public float ProbabilityX(X x) => probabilityX[binX(x)];
+  public float ProbabilityY(Y x) => probabilityY[binY(x)];
+  public float ProbabilityXY(X x, Y y) => probabilityXY[binX(x), binY(y)];
+  public float ProbabilityXGivenY(X x, Y y)
+    => ProbabilityDistribution.ConditionalProbabilityXY(probabilityXY, probabilityY)[binX(x), binY(y)];
+  public float ProbabilityYGivenX(Y y, X x)
+    => ProbabilityDistribution.ConditionalProbabilityYX(probabilityXY, probabilityX)[binX(x), binY(y)];
+  public float EntropyYGivenX(int? basis = null)
+    => ProbabilityDistribution.ConditionalEntropyYX(probabilityXY, probabilityX, basis);
+  public float EntropyXGivenY(int? basis = null)
+    => ProbabilityDistribution.ConditionalEntropyXY(probabilityXY, probabilityY, basis);
+  public float EntropyXY(int? basis = null)
+    => ProbabilityDistribution.JointEntropy(probabilityXY, basis);
+  public float EntropyX(int? basis = null)
+    => ProbabilityDistribution.Entropy(probabilityX, basis);
+  public float EntropyY(int? basis = null)
+    => ProbabilityDistribution.Entropy(probabilityY, basis);
+  public float MutualInformationXY(int? basis = null)
+    => ProbabilityDistribution.MutualInformation(probabilityX, probabilityY, probabilityXY, basis);
 
 }
 

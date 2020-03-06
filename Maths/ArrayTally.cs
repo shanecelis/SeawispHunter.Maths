@@ -7,227 +7,282 @@
 */
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace SeawispHunter.Maths {
-  public class ArrayTally<X, Y> {
+public class ArrayTally<X, Y> {
 
-    public readonly int binCountX;
-    public readonly int binCountY;
-    int[,,,] counts;
-    int samples = 0;
-    public readonly Func<X, int> binX;
-    public readonly Func<Y, int> binY;
+  public readonly int binCountX;
+  public readonly int binCountY;
+  int[,,,] counts;
+  int samples = 0;
+  public readonly Func<X, int> binX;
+  public readonly Func<Y, int> binY;
 
-    private int sampleAtX = -1;
-    private float[][] _probabilityX;
-    public float[][] probabilityX {
-      get {
-        if (sampleAtX != samples) {
-          for (int i = 0; i < counts.GetLength(0); i++) {
-            for (int k = 0; k < counts.GetLength(2); k++) {
-              int accum = 0;
-              // for (int j = 0; j < counts.GetLength(1); j++)
-              int j = 0;
+  private int sampleAtX = -1;
+  private float[][] _probabilityX;
+  public float[][] probabilityX {
+    get {
+      if (sampleAtX != samples) {
+        for (int i = 0; i < counts.GetLength(0); i++) {
+          for (int k = 0; k < counts.GetLength(2); k++) {
+            int accum = 0;
+            // for (int j = 0; j < counts.GetLength(1); j++)
+            int j = 0;
+            for (int l = 0; l < counts.GetLength(3); l++)
+              accum += counts[i, j, k, l];
+            _probabilityX[i][k] = (float) accum / samples;
+          }
+        }
+        sampleAtX = samples;
+      }
+      return _probabilityX;
+    }
+  }
+
+  private int sampleAtY = -1;
+  private float[][] _probabilityY;
+  public float[][] probabilityY {
+    get {
+      if (sampleAtY != samples) {
+        for (int j = 0; j < counts.GetLength(1); j++) {
+          for (int l = 0; l < counts.GetLength(3); l++) {
+            int accum = 0;
+            // for (int i = 0; i < counts.GetLength(0); i++)
+            int i = 0;
+            for (int k = 0; k < counts.GetLength(2); k++)
+              accum += counts[i, j, k, l];
+            _probabilityY[j][l] = (float) accum / samples;
+          }
+        }
+        sampleAtY = samples;
+      }
+      return _probabilityY;
+    }
+  }
+
+  private int sampleAtXY = -1;
+  private float[,][,] _probabilityXY;
+  /** Joint probability of an X and Y element. */
+  public float[,][,] probabilityXY {
+    get {
+      if (sampleAtXY != samples) {
+        for (int i = 0; i < counts.GetLength(0); i++)
+          for (int j = 0; j < counts.GetLength(1); j++)
+            for (int k = 0; k < counts.GetLength(2); k++)
               for (int l = 0; l < counts.GetLength(3); l++)
-                accum += counts[i, j, k, l];
-              _probabilityX[i][k] = (float) accum / samples;
-            }
-          }
-          sampleAtX = samples;
-        }
-        return _probabilityX;
+                _probabilityXY[i, j][k, l] = (float) counts[i, j, k, l] / samples;
+        sampleAtXY = samples;
       }
+      return _probabilityXY;
     }
+  }
 
-    private int sampleAtY = -1;
-    private float[][] _probabilityY;
-    public float[][] probabilityY {
-      get {
-        if (sampleAtY != samples) {
-          for (int j = 0; j < counts.GetLength(1); j++) {
-            for (int l = 0; l < counts.GetLength(3); l++) {
-              int accum = 0;
-              // for (int i = 0; i < counts.GetLength(0); i++)
-              int i = 0;
-              for (int k = 0; k < counts.GetLength(2); k++)
-                accum += counts[i, j, k, l];
-              _probabilityY[j][l] = (float) accum / samples;
-            }
-          }
-          sampleAtY = samples;
-        }
-        return _probabilityY;
-      }
-    }
+  public ArrayTally(int binCountX, Func<X, int> binX,
+                    int binCountY, Func<Y, int> binY) {
+    this.binCountX = binCountX;
+    this.binX = binX;
+    this.binCountY = binCountY;
+    this.binY = binY;
+  }
 
-    private int sampleAtXY = -1;
-    private float[,][,] _probabilityXY;
-    /** Joint probability of an X and Y element. */
-    public float[,][,] probabilityXY {
-      get {
-        if (sampleAtXY != samples) {
-          for (int i = 0; i < counts.GetLength(0); i++)
-            for (int j = 0; j < counts.GetLength(1); j++)
-              for (int k = 0; k < counts.GetLength(2); k++)
-                for (int l = 0; l < counts.GetLength(3); l++)
-                  _probabilityXY[i, j][k, l] = (float) counts[i, j, k, l] / samples;
-          sampleAtXY = samples;
-        }
-        return _probabilityXY;
-      }
-    }
+  /** Add a sample to the tally counts. */
+  public void Add(X[] x, Y[] y) {
+    if (counts == null) {
+      counts = new int[x.Length, y.Length, binCountX, binCountY];
+      _probabilityX = new float[x.Length][];
+      for (int i = 0; i < x.Length; i++)
+        _probabilityX[i] = new float[binCountX];
 
-    public ArrayTally(int binCountX, Func<X, int> binX,
-                      int binCountY, Func<Y, int> binY) {
-      this.binCountX = binCountX;
-      this.binX = binX;
-      this.binCountY = binCountY;
-      this.binY = binY;
-    }
+      _probabilityY = new float[y.Length][];
+      for (int j = 0; j < y.Length; j++)
+        _probabilityY[j] = new float[binCountY];
 
-    /** Add a sample to the tally counts. */
-    public void Add(X[] x, Y[] y) {
-      if (counts == null) {
-        counts = new int[x.Length, y.Length, binCountX, binCountY];
-        _probabilityX = new float[x.Length][];
-        for (int i = 0; i < x.Length; i++)
-          _probabilityX[i] = new float[binCountX];
-
-        _probabilityY = new float[y.Length][];
+      _probabilityXY = new float[x.Length, y.Length][,];
+      for (int i = 0; i < x.Length; i++)
         for (int j = 0; j < y.Length; j++)
-          _probabilityY[j] = new float[binCountY];
+          _probabilityXY[i, j] = new float[binCountX, binCountY];
+    }
 
-        _probabilityXY = new float[x.Length, y.Length][,];
-        for (int i = 0; i < x.Length; i++)
-          for (int j = 0; j < y.Length; j++)
-            _probabilityXY[i, j] = new float[binCountX, binCountY];
+    if (x.Length != counts.GetLength(0))
+      throw new Exception($"Expected {counts.GetLength(0)} elements; received {x.Length}.");
+    if (y.Length != counts.GetLength(1))
+      throw new Exception($"Expected {counts.GetLength(1)} elements; received {y.Length}.");
+    for (int i = 0; i < x.Length; i++) {
+      int k = binX(x[i]);
+      if (k < 0 || k >= binCountX)
+        throw new ArgumentException($"Item {x[i]} expected in bin [0, {binCountX}) but placed in {k}.");
+      for (int j = 0; j < y.Length; j++) {
+
+        int l = binY(y[j]);
+        if (l < 0 || l >= binCountY)
+          throw new ArgumentException($"Item {y[j]} expected in bin [0, {binCountY}) but placed in {l}.");
+        counts[i, j, k, l]++;
       }
+    }
+    samples++;
+  }
 
-      if (x.Length != counts.GetLength(0))
-        throw new Exception($"Expected {counts.GetLength(0)} elements; received {x.Length}.");
-      if (y.Length != counts.GetLength(1))
-        throw new Exception($"Expected {counts.GetLength(1)} elements; received {y.Length}.");
-      for (int i = 0; i < x.Length; i++) {
-        int k = binX(x[i]);
-        if (k < 0 || k >= binCountX)
-          throw new ArgumentException($"Item {x[i]} expected in bin [0, {binCountX}) but placed in {k}.");
-        for (int j = 0; j < y.Length; j++) {
+  /** Reset the frequency counter. */
+  public void Clear() {
+    Array.Clear(counts, 0, counts.Length);
+    samples = 0;
+    Array.Clear(_probabilityX, 0, _probabilityX.Length);
+    sampleAtX = -1;
+    Array.Clear(_probabilityY, 0, _probabilityY.Length);
+    sampleAtY = -1;
+    Array.Clear(_probabilityXY, 0, _probabilityXY.Length);
+    sampleAtXY = -1;
+  }
 
-          int l = binY(y[j]);
-          if (l < 0 || l >= binCountY)
-            throw new ArgumentException($"Item {y[j]} expected in bin [0, {binCountY}) but placed in {l}.");
-          counts[i, j, k, l]++;
+  protected static float[,] NewArray(int xLength, int yLength, Func<int, int, float> f) {
+    var xys = new float[xLength, yLength];
+    for (int i = 0; i < xLength; i++)
+      for (int j = 0; j < yLength; j++)
+        xys[i, j] = f(i, j);
+    return xys;
+  }
+
+  protected static float Fold(int xLength, int yLength, Func<int, int, float, float> f, float seed) {
+    var xys = new float[xLength, yLength];
+    float accum = seed;
+    for (int i = 0; i < xLength; i++)
+      for (int j = 0; j < yLength; j++)
+        accum = f(i, j, seed);
+    return accum;
+  }
+
+  public float[] ProbabilityX(X[] xs)
+    => xs.Select((x, i) => probabilityX[i][binX(x)]).ToArray();
+
+  public float[] ProbabilityY(Y[] ys)
+    => ys.Select((y, j) => probabilityY[j][binY(y)]).ToArray();
+
+  public float[,] ProbabilityXY(X[] xs, Y[] ys) {
+    // var xys = new float[xs.Length, ys.Length];
+    // for (int i = 0; i < xs.Length; i++)
+    //   for (int j = 0; j < ys.Length; j++)
+    //     xys[i, j] = probabilityXY[i, j][binX(xs[i]), binY(ys[j])];
+    // return xys;
+    return NewArray(xs.Length, ys.Length,
+                    (i, j) => probabilityXY[i, j][binX(xs[i]), binY(ys[j])]);
+  }
+
+  public float[,] ProbabilityXGivenY(X[] xs, Y[] ys)
+    => NewArray(xs.Length, ys.Length,
+                (i, j) => ProbabilityDistribution.ConditionalProbabilityXY(probabilityXY[i, j], probabilityY[j])[binX(xs[i]), binY(ys[j])]);
+
+  public float[,] ProbabilityYGivenX(Y[] ys, X[] xs)
+    => NewArray(xs.Length, ys.Length,
+                (i, j) => ProbabilityDistribution.ConditionalProbabilityXY(probabilityXY[i, j], probabilityX[i])[binX(xs[i]), binY(ys[j])]);
+
+  public float[,] EntropyYGivenX(int? basis = null)
+    => NewArray(binCountX, binCountY,
+                (i, j) => ProbabilityDistribution.ConditionalEntropyYX(probabilityXY[i, j], probabilityX[i], basis));
+
+  public float[,] EntropyXGivenY(int? basis = null)
+    => NewArray(binCountX, binCountY,
+                (i, j) => ProbabilityDistribution.ConditionalEntropyXY(probabilityXY[i, j], probabilityY[j], basis));
+
+  public float[,] EntropyXY(int? basis = null)
+    => NewArray(binCountX, binCountY,
+                (i, j) => ProbabilityDistribution.JointEntropy(probabilityXY[i, j], basis));
+
+  public float[] EntropyX(int? basis = null)
+    => Enumerable.Range(0, binCountX)
+    .Select(i => ProbabilityDistribution.Entropy(probabilityX[i], basis))
+    .ToArray();
+
+  public float[] EntropyY(int? basis = null)
+    => Enumerable.Range(0, binCountY)
+    .Select(j => ProbabilityDistribution.Entropy(probabilityY[j], basis))
+    .ToArray();
+
+  public float[,] MutualInformationXY(int? basis = null)
+    => NewArray(binCountX, binCountY,
+                (i, j) => ProbabilityDistribution.MutualInformation(probabilityX[i], probabilityY[j], probabilityXY[i, j], basis));
+
+}
+
+public class ArrayTally<T> {
+
+  public readonly int binCount;
+  int[,] counts;
+  int samples = 0;
+  public readonly Func<T, int> binFunc;
+
+  private int sampleAt = -1;
+  private float[][] _probability;
+
+  public float[][] probability {
+    get {
+      if (sampleAt != samples) {
+        for (int i = 0; i < counts.GetLength(0); i++) {
+          for (int j = 0; j < counts.GetLength(1); j++)
+            _probability[i][j] = (float) counts[i, j] / samples;
         }
+        sampleAt = samples;
       }
-      samples++;
-    }
-
-    /** Reset the frequency counter. */
-    public void Clear() {
-      Array.Clear(counts, 0, counts.Length);
-      samples = 0;
-      Array.Clear(_probabilityX, 0, _probabilityX.Length);
-      sampleAtX = -1;
-      Array.Clear(_probabilityY, 0, _probabilityY.Length);
-      sampleAtY = -1;
-      Array.Clear(_probabilityXY, 0, _probabilityXY.Length);
-      sampleAtXY = -1;
-    }
-
-  }
-
-  public class ArrayTally<T> {
-
-    public readonly int binCount;
-    int[,] counts;
-    int samples = 0;
-    public readonly Func<T, int> binFunc;
-
-    private int sampleAt = -1;
-    private float[][] _probability;
-
-    public float[][] probability {
-      get {
-        if (sampleAt != samples) {
-          for (int i = 0; i < counts.GetLength(0); i++) {
-            for (int j = 0; j < counts.GetLength(1); j++)
-              _probability[i][j] = (float) counts[i, j] / samples;
-          }
-
-          sampleAt = samples;
-        }
-
-        return _probability;
-      }
-    }
-
-    public ArrayTally(int binCount, Func<T, int> binFunc) {
-      this.binCount = binCount;
-      this.binFunc = binFunc;
-    }
-
-    /** Add a sample to the frequency count. */
-    public void Add(T[] x) {
-      if (counts == null) {
-        counts = new int[x.Length, binCount];
-        _probability = new float[x.Length][];
-        for (int i = 0; i < x.Length; i++)
-          _probability[i] = new float[binCount];
-      }
-
-      if (x.Length != counts.GetLength(0))
-        throw new Exception($"Expected {counts.GetLength(0)} elements; received {x.Length}.");
-      for (int i = 0; i < x.Length; i++) {
-        int j = binFunc(x[i]);
-        if (j < 0 || j >= binCount)
-          throw new ArgumentException($"Item {x} expected in bin [0, {binCount}) but placed in {i}.");
-        counts[i, j]++;
-      }
-
-      samples++;
-    }
-
-    /** Reset the frequency counter. */
-    public void Clear() {
-      Array.Clear(counts, 0, counts.Length);
-      Array.Clear(_probability, 0, _probability.Length);
-      sampleAt = -1;
-      samples = 0;
-    }
-
-    /** Return the estimated probability of an element. */
-    public float[] Probability(T[] x) {
-      var prob = new float[counts.GetLength(0)];
-      for (int i = 0; i < counts.GetLength(0); i++)
-        prob[i] = (float) counts[i, binFunc(x[i])] / samples;
-      return prob;
-    }
-
-    /** Calculate the entropy. */
-    public float[] Entropy() {
-      int dataCount = counts.GetLength(0);
-      float[] entropy = new float[counts.GetLength(0)];
-      for (int i = 0; i < dataCount; i++) {
-        entropy[i] = ProbabilityDistribution.Entropy(probability[i]);
-      }
-
-      return entropy;
+      return _probability;
     }
   }
 
-  public class FrequencyArrayTallySingle : ArrayTally<float> {
-
-    public FrequencyArrayTallySingle(int binCount, float min, float max)
-      : base(binCount, x => (int) ((Clamp(x, min, max) - min) / (max - min) * (binCount - 1))) { }
-
-    static float Clamp(float x, float min, float max) => System.Math.Min(System.Math.Max(x, min), max);
-
+  public ArrayTally(int binCount, Func<T, int> binFunc) {
+    this.binCount = binCount;
+    this.binFunc = binFunc;
   }
 
-  public class FrequencyArrayTallyAlphabet : ArrayTally<string> {
+  /** Add a sample to the frequency count. */
+  public void Add(T[] x) {
+    if (counts == null) {
+      counts = new int[x.Length, binCount];
+      _probability = new float[x.Length][];
+      for (int i = 0; i < x.Length; i++)
+        _probability[i] = new float[binCount];
+    }
 
-    public FrequencyArrayTallyAlphabet(string[] alphabet)
-      : base(alphabet.Length, x => Array.IndexOf(alphabet, x)) { }
+    if (x.Length != counts.GetLength(0))
+      throw new Exception($"Expected {counts.GetLength(0)} elements; received {x.Length}.");
+    for (int i = 0; i < x.Length; i++) {
+      int j = binFunc(x[i]);
+      if (j < 0 || j >= binCount)
+        throw new ArgumentException($"Item {x} expected in bin [0, {binCount}) but placed in {i}.");
+      counts[i, j]++;
+    }
+
+    samples++;
   }
+
+  /** Reset the frequency counter. */
+  public void Clear() {
+    Array.Clear(counts, 0, counts.Length);
+    Array.Clear(_probability, 0, _probability.Length);
+    sampleAt = -1;
+    samples = 0;
+  }
+
+  public float[] Probability(T[] xs)
+    => xs.Select((x, i) => probability[i][binFunc(x)]).ToArray();
+
+  public float[] Entropy(int? basis = null)
+    => Enumerable.Range(0, counts.GetLength(0))
+    .Select(i => ProbabilityDistribution.Entropy(probability[i], basis))
+    .ToArray();
+}
+
+public class FrequencyArrayTallySingle : ArrayTally<float> {
+
+  public FrequencyArrayTallySingle(int binCount, float min, float max)
+    : base(binCount, x => (int) ((Clamp(x, min, max) - min) / (max - min) * (binCount - 1))) { }
+
+  static float Clamp(float x, float min, float max) => System.Math.Min(System.Math.Max(x, min), max);
+
+}
+
+public class FrequencyArrayTallyAlphabet : ArrayTally<string> {
+
+  public FrequencyArrayTallyAlphabet(string[] alphabet)
+    : base(alphabet.Length, x => Array.IndexOf(alphabet, x)) { }
+}
 }
